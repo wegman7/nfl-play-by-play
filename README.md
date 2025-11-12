@@ -43,13 +43,19 @@ or, later, Sportradar if you want true production-grade.
 This lets you master streaming + ML orchestration with zero API fees.
 
 ## model potential features:
-A) Game-state features (always available)
-quarter, clock_remaining_seconds
-score_diff (home − away)
-possession_team, is_home_possession
-down, distance, yardline_100 (distance to end zone)
-timeouts_home, timeouts_away
-home/away indicator, neutral_site
+A) Game-state features (always available)  
+quarter,  
+clock_remaining_seconds,  
+score_diff (home − away),  
+possession_team,  
+is_home_possession,  
+down,  
+distance,  
+yardline_100 (distance to end zone)
+timeouts_home,  
+timeouts_away,  
+home/away indicator,  
+neutral_site,  
 posteam_time_in_possession (rolling)  
 
 B) Team strength & priors (pregame context you carry through the game)
