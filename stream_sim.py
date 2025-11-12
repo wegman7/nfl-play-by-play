@@ -5,7 +5,7 @@ import pandas as pd
 df = pd.read_parquet("play_by_play_2023.parquet")
 df = df.sort_values(["game_id", "play_id"])
 
-producer = KafkaProducer(bootstrap_servers=["localhost:9092"],
+producer = KafkaProducer(bootstrap_servers=["localhost:19092"],
                          value_serializer=lambda v: json.dumps(v).encode("utf-8"))
 
 for _, row in df.iterrows():

@@ -2,7 +2,16 @@
 create kafka topic:
 kafka-topics.sh --create --topic nfl_plays --bootstrap-server localhost:9092
 
+# %%docker-compose
+docker compose down -v
+docker compose up -d
 
+
+# %%DATA
+https://github.com/nflverse/nflverse-data/releases/tag/pbp
+# also see:
+https://github.com/nflverse/nflfastR?tab=readme-ov-file
+https://github.com/nflverse/nflverse-data
 
 
 # %%
