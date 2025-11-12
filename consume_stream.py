@@ -1,9 +1,6 @@
 # %%
-from pyspark.sql import SparkSession, functions as F, types as T
-from pyspark.sql.functions import from_json, col
+from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
-from pyspark.sql.functions import pandas_udf, PandasUDFType
-from pyspark.sql import DataFrame
 
 spark = (
     SparkSession.builder

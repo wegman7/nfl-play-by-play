@@ -1,20 +1,14 @@
-# %%
-create kafka topic:
-kafka-topics.sh --create --topic nfl_plays --bootstrap-server localhost:9092
-
-# %%docker-compose
+## start kafka server
 docker compose down -v
 docker compose up -d
 
+## DATA
+https://github.com/nflverse/nflverse-data/releases/tag/pbp  
 
-# %%DATA
-https://github.com/nflverse/nflverse-data/releases/tag/pbp
-# also see:
 https://github.com/nflverse/nflfastR?tab=readme-ov-file
 https://github.com/nflverse/nflverse-data
 
-
-# %%
+## getting actual real time data
 There are free, unofficial APIs or public JSON endpoints that update every few seconds during games:
 NFL’s public GameCenter JSON (not officially supported, but educational use is common)
 e.g. https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard
@@ -29,7 +23,6 @@ You can get live scores, teams, events (not as detailed as play-by-play).
 Free with API key, no credit card.
 College football APIs (like cfbd): also free and structured similarly.
 
-
 💸 4. What’s actually free vs. paid
 Source	Live?	Cost	Granularity	Notes
 nflfastR	❌ (historical)	Free	Play-by-play	Perfect for model training
@@ -38,8 +31,6 @@ TheSportsDB	✅	Free tier	Team & score	Simple to use
 SportsDataIO	✅	Free dev tier	Full play detail	Daily call limits
 Sportradar	✅	$$$	Enterprise live feed	Real-time, licensed
 Synthetic / simulator	✅ (your control)	Free	Anything	Perfect for streaming practice
-
-
 
 🧠 Recommended approach for your NFL MLOps project
 Train models on historical nflfastR data.
@@ -51,10 +42,7 @@ or SportsDataIO free API for small batches,
 or, later, Sportradar if you want true production-grade.
 This lets you master streaming + ML orchestration with zero API fees.
 
-
-
-
-# %%model potential features:
+## model potential features:
 A) Game-state features (always available)
 quarter, clock_remaining_seconds
 score_diff (home − away)
@@ -62,23 +50,26 @@ possession_team, is_home_possession
 down, distance, yardline_100 (distance to end zone)
 timeouts_home, timeouts_away
 home/away indicator, neutral_site
-posteam_time_in_possession (rolling)
+posteam_time_in_possession (rolling)  
+
 B) Team strength & priors (pregame context you carry through the game)
 team_strength_home, team_strength_away (e.g., Elo/Glicko, or last-N EPA)
 vegas_spread_closing, total_closing (if available)
-Rolling form: last 3 games offensive/defensive EPA/play, success rate
+Rolling form: last 3 games offensive/defensive EPA/play, success rate  
+
 C) On-field tendencies (rolling, online-updated)
 run_rate_last_10_plays, pass_rate_last_10_plays
 qb_completion_rate_trailing_10, pressure_rate_allowed_trailing_50
 explosive_play_rate (≥ 20 yards) trailing window
-red_zone_efficiency trailing window
+red_zone_efficiency trailing window  
+
 D) Environment
 roof (indoor/outdoor), surface, temperature, wind, precip_flag
 All rolling features must be online-safe: only use events up to t.
 
 
 
-# %%building pregame model
+## building pregame model
 9) Can the same model do pregame WP?
 Short answer: you can, but a separate pregame model is better.
 Option A — Reuse the in-game WP model
@@ -96,8 +87,14 @@ WP_blended = α(t) * WP_pregame + (1-α(t)) * WP_ingame, where α decays from 1 
 This produces excellent early-game calibration and smooth transitions.
 
 
-# %%Minimal feature list (to start strong)
+## Minimal feature list (to start strong)
 State: quarter, clock_seconds, score_diff, down, distance, yardline_100, timeouts_home/away, is_home_possession
 Priors: team_strength_home/away (Elo), vegas_spread, home_field
 Rolling: offense_epa_l50, defense_epa_allowed_l50, pass_rate_l10, qb_comp_l10
 Env: roof/surface, temp, wind
+
+
+
+### TODO
+- finish feature list
+- will need to derive home team indicator
