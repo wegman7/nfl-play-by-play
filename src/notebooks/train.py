@@ -2,18 +2,23 @@
 from pathlib import Path
 
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor
 
+from mlflow.models import infer_signature
+import mlflow
+import mlflow.sklearn
+
 ROOT = Path(__file__).resolve().parents[2]
 
 # %%
-key_cols = ["game_id", "play_id"]
+mlflow.set_tracking_uri("sqlite:///mlflow.db")
+mlflow.set_experiment("play_by_play_win_prob")
 
+key_cols = ["game_id", "play_id"]
 numeric_features = [
     "qtr",
     "total_home_score",
@@ -26,9 +31,7 @@ numeric_features = [
     "defteam_timeouts_remaining",
     "time_seconds",
 ]
-
 categorical_features = ["home_team", "posteam", "location"]
-
 label_cols = ["win"]
 
 # %%
@@ -41,7 +44,7 @@ full_dataset = features_raw.merge(
     on=key_cols
 )
 features = full_dataset[numeric_features + categorical_features]
-labels = full_dataset[label_cols]
+labels = full_dataset[label_cols[0]]
 
 # %%
 # Preprocessor: OneHot encode categoricals, pass through numerics
@@ -77,13 +80,38 @@ clf = Pipeline(
 # train/test split
 X = features
 y = labels
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# Fit the model
-clf.fit(X_train, y_train)
+# %%
+# MLflow tracking: fit, evaluate, log params/metrics/model
+with mlflow.start_run():
+    # log some basic params
+    mlflow.log_params({
+        "model_type": "RandomForestRegressor",
+        "n_estimators": model.n_estimators,
+        "random_state": model.random_state,
+        "test_size": 0.2,
+    })
 
-# Evaluate quickly
-r2 = clf.score(X_test, y_test)
-print(f"R^2 on test set: {r2:.3f}")
+    # Fit the model
+    clf.fit(X_train, y_train)
+
+    # Evaluate quickly
+    r2 = clf.score(X_test, y_test)
+    print(f"R^2 on test set: {r2:.3f}")
+
+    # log metric
+    mlflow.log_metric("r2", float(r2))
+
+    signature = infer_signature(X_train, clf.predict(X_train))
+
+    # log the whole sklearn pipeline as a model
+    mlflow.sklearn.log_model(
+        clf, 
+        name="model",
+        signature=signature,
+        input_example=X_train.head(5)
+    )

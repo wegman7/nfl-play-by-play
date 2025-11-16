@@ -1,3 +1,9 @@
 chk
 __pycache__/
 
+# MLflow
+mlruns/
+mlartifacts/
+mlflow.db
+.mlflow/
+
