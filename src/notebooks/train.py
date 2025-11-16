@@ -1,4 +1,6 @@
 # %%
+import os
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -8,7 +10,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor
 # %%
 
-raw = pd.read_parquet("play_by_play_2023.parquet")
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+data_path = os.path.join(ROOT, "data", "raw", "play_by_play_2023.parquet")
+
+raw = pd.read_parquet(data_path)
 
 # Feature columns you mentioned
 feature_cols = [
