@@ -102,5 +102,11 @@ Env: roof/surface, temp, wind
 
 
 ### TODO
-- finish feature list
-- will need to derive home team indicator
+ - need to create notebook and functions to derive labels ("win" column)
+ - orchestrate everything with something like airflow?
+ - hook up mlflow
+ - test inference with test data
+ - find live datasource to test live with
+ - add a separate model for pregame predictions
+    - use a combination of this model + my play by play model for in game predictions
+

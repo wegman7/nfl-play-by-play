@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     # your mm:ss → seconds logic, etc.
     df = df.copy()
@@ -10,19 +11,21 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     df["time_seconds"] = df["time"].astype(str).apply(mmss_to_seconds)
     return df
 
+
 def add_score_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["score_diff"] = df["total_home_score"] - df["total_away_score"]
     return df
+
 
 def select_final_feature_columns(df: pd.DataFrame) -> pd.DataFrame:
     key_cols = ["game_id", "play_id"]
 
     feature_cols = [
         "qtr",
-        "score_diff",
         "total_home_score",
         "total_away_score",
+        "score_diff",
         "down",
         "ydstogo",
         "yardline_100",
@@ -34,6 +37,7 @@ def select_final_feature_columns(df: pd.DataFrame) -> pd.DataFrame:
         "location",
     ]
     return df[key_cols + feature_cols]
+
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     return (

@@ -1,5 +1,4 @@
 # %%
-
 from pathlib import Path
 import sys
 
@@ -8,13 +7,13 @@ sys.path.append(str(ROOT))
 
 import pandas as pd
 
-from src.features.core import build_features
-# %%
+from src.features.play_by_play import build_features
 
+# %%
 RAW_DATA_DIR = ROOT / "data" / "raw"
 FEATURES_DIR = ROOT / "data" / "features"
-# %%
 
+# %%
 cols = [
     "game_id",
     "play_id",
@@ -34,7 +33,7 @@ cols = [
 
 raw = pd.read_parquet(RAW_DATA_DIR / "play_by_play_2023.parquet")
 data = raw[cols].dropna()
-# %%
 
+# %%
 features = build_features(data)
-features.to_parquet(FEATURES_DIR / "features_2023.parquet")
+features.to_parquet(FEATURES_DIR / "play_by_play_2023.parquet")
