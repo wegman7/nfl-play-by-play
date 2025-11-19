@@ -7,41 +7,32 @@ from sklearn.metrics import r2_score, mean_squared_error
 
 import mlflow
 import mlflow.sklearn
-from mlflow.tracking import MlflowClient
 from mlflow.artifacts import download_artifacts
 
 # %%
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT))
 
-# Use the same tracking backend as training
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
-mlflow.set_experiment("play_by_play_win_prob")
+from src.utils.model_util import load_best_model_from_experiment
 
 # %%
-# Find the best run (by r2) for this experiment
-client = MlflowClient()
-experiment = mlflow.get_experiment_by_name("play_by_play_win_prob")
-if experiment is None:
-    raise RuntimeError("Experiment 'play_by_play_win_prob' not found in this tracking URI")
+# Use the same tracking backend as training
+TRACKING_URI = "sqlite:///mlflow.db"
+EXPERIMENT_NAME = "play_by_play_win_prob"
 
-runs = client.search_runs(
-    experiment_ids=[experiment.experiment_id],
-    order_by=["metrics.r2 DESC"],
-    max_results=1,
+mlflow.set_tracking_uri(TRACKING_URI)
+mlflow.set_experiment(EXPERIMENT_NAME)
+
+# %%
+# Load the best model for this experiment (by r2)
+clf, model_uri, RUN_ID = load_best_model_from_experiment(
+    experiment_name=EXPERIMENT_NAME,
+    tracking_uri=TRACKING_URI,
+    metric="r2",
+    higher_is_better=True,
 )
 
-if not runs:
-    raise RuntimeError("No runs found for experiment 'play_by_play_win_prob'")
-
-best_run = runs[0]
-RUN_ID = best_run.info.run_id
 print("Using run:", RUN_ID)
-
-# %%
-# Load the logged model (full sklearn Pipeline)
-model_uri = f"runs:/{RUN_ID}/model"
-clf = mlflow.sklearn.load_model(model_uri)
 print("Loaded model from:", model_uri)
 
 # %%

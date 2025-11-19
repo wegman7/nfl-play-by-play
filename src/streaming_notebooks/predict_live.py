@@ -8,8 +8,6 @@ from pyspark.sql.types import (
 )
 
 import pandas as pd
-import mlflow
-import mlflow.sklearn
 
 from pathlib import Path
 import sys
@@ -18,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT))
 
 from src.features.play_by_play import build_features
+from src.utils.model_util import load_best_model_from_experiment
 
 STREAM_FEATURES_DIR = ROOT / "data" / "live" / "features"
 
@@ -32,22 +31,14 @@ spark = (
     .getOrCreate()
 )
 
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
 EXPERIMENT_NAME = "play_by_play_win_prob"
-experiment = mlflow.get_experiment_by_name(EXPERIMENT_NAME)
-if experiment is None:
-    raise RuntimeError(f"Experiment '{EXPERIMENT_NAME}' not found")
-
-client = mlflow.tracking.MlflowClient()
-runs = client.search_runs(
-    experiment_ids=[experiment.experiment_id],
-    order_by=["metrics.r2 DESC"],
-    max_results=1,
+model, model_uri, RUN_ID = load_best_model_from_experiment(
+    experiment_name=EXPERIMENT_NAME,
+    tracking_uri="sqlite:///mlflow.db",
+    metric="r2",
+    higher_is_better=True,
 )
-best_run = runs[0]
-RUN_ID = best_run.info.run_id
-model_uri = f"runs:/{RUN_ID}/model"
-model = mlflow.sklearn.load_model(model_uri)
+print(f"Loaded model from {model_uri} (run_id={RUN_ID})")
 
 json_fields = [
     "game_id",
@@ -63,7 +54,7 @@ json_fields = [
     "yardline_100",
     "posteam_timeouts_remaining",
     "defteam_timeouts_remaining",
-    "location"
+    "location",
 ]
 
 feature_cols = [
@@ -118,37 +109,27 @@ parsed = (
     .select("kafka_key", "timestamp", "j.*")
 )
 
+
 def process_batch(batch_df, epoch_id: int):
     if batch_df.rdd.isEmpty():
         return
 
-    # Convert Spark → pandas
     pdf = batch_df.toPandas()
-
-    # Build your engineered features
     features = build_features(pdf)
 
-    # Keep only rows that have *all* required model features
     good_features = features.dropna(subset=feature_cols)
 
-    # Optional: see if anything was dropped
     num_bad = len(features) - len(good_features)
     if num_bad > 0:
         print(f"[epoch {epoch_id}] Skipping {num_bad} bad rows (NaNs in feature_cols)")
-        # OPTIONAL: save these rows for debugging
-        # bad_rows = features[features[feature_cols].isna().any(axis=1)]
-        # bad_rows.to_parquet(f"./bad_rows_epoch_{epoch_id}.parquet", index=False)
 
-    # If nothing valid to score, return early
     if good_features.empty:
         return
 
-    # Run model ONLY on clean data
     X = good_features[feature_cols]
     preds = model.predict(X)
     good_features["win_prob"] = preds
 
-    # Write results back to Spark for saving
     out_spark_df = spark.createDataFrame(good_features)
     (
         out_spark_df
