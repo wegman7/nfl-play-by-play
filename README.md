@@ -1,6 +1,7 @@
 ## start kafka server
 docker compose down -v
 docker compose up -d
+# view kafka ui at localhost:8080
 
 ## DATA
 https://github.com/nflverse/nflverse-data/releases/tag/pbp  
