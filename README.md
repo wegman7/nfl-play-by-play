@@ -103,11 +103,11 @@ Env: roof/surface, temp, wind
 
 
 ### TODO
- - need to create notebook and functions to derive labels ("win" column)
- - orchestrate everything with something like airflow?
- - hook up mlflow
- - test inference with test data
  - find live datasource to test live with
+ - orchestrate everything with something like airflow?
  - add a separate model for pregame predictions
     - use a combination of this model + my play by play model for in game predictions
+ - look into best practices for model staging/promotion
+ - work on making model better: look into more feature engineering, looking at different model architectures, which one makes the most sense and why. also look into xgboost and hyperparameter searching
+ 
 

@@ -8,3 +8,5 @@ mlflow.db
 .mlflow/
 
 data/live
+
+.env
