@@ -207,6 +207,11 @@ def espn_game_to_df_with_timeouts(game_id: str) -> pd.DataFrame:
     - extract plays + team IDs/meta
     - enrich with timeouts remaining
     - return a pandas DataFrame (one row per play)
+
+    Returns all columns needed for feature engineering:
+    - game_id, play_id, qtr, time, total_home_score, total_away_score
+    - home_team, posteam, down, ydstogo, yardline_100
+    - posteam_timeouts_remaining, defteam_timeouts_remaining, location
     """
     game_json = fetch_espn_game(game_id)
     home_id, away_id, abbrev_to_team_id = get_team_meta(game_json)
@@ -221,16 +226,62 @@ def espn_game_to_df_with_timeouts(game_id: str) -> pd.DataFrame:
     # Flatten nested dicts into columns
     df = pd.json_normalize(plays_enriched)
 
-    # (Optional) clean up some common useful columns
+    # Get home team abbreviation
+    team_id_to_abbrev = {v: k for k, v in abbrev_to_team_id.items()}
+    home_team_abbrev = team_id_to_abbrev.get(home_id, "")
+
+    # Add game_id column
+    df["game_id"] = game_id
+
+    # Rename and extract basic columns
     rename_map = {
+        "id": "play_id",
         "period.number": "qtr",
-        "clock.displayValue": "clock",
+        "clock.displayValue": "time",
         "start.down": "down",
         "start.distance": "ydstogo",
-        "start.yardLine": "yardline_100_like",
+        "start.yardLine": "yardline_100",
         "homeScore": "total_home_score",
         "awayScore": "total_away_score",
+        "start.team.id": "posteam_id",
     }
     df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+
+    # Add home_team column
+    df["home_team"] = home_team_abbrev
+
+    # Extract posteam (possessing team abbreviation)
+    if "posteam_id" in df.columns:
+        df["posteam"] = df["posteam_id"].map(team_id_to_abbrev)
+    else:
+        df["posteam"] = None
+
+    # Calculate posteam_timeouts_remaining and defteam_timeouts_remaining
+    # based on which team has possession
+    if "posteam_id" in df.columns:
+        df["posteam_timeouts_remaining"] = df.apply(
+            lambda row: row["home_timeouts_remaining"]
+            if row["posteam_id"] == home_id
+            else row["away_timeouts_remaining"],
+            axis=1
+        )
+        df["defteam_timeouts_remaining"] = df.apply(
+            lambda row: row["away_timeouts_remaining"]
+            if row["posteam_id"] == home_id
+            else row["home_timeouts_remaining"],
+            axis=1
+        )
+    else:
+        df["posteam_timeouts_remaining"] = None
+        df["defteam_timeouts_remaining"] = None
+
+    # Determine location (Home/Away from posteam perspective)
+    if "posteam_id" in df.columns:
+        df["location"] = df.apply(
+            lambda row: "Home" if row["posteam_id"] == home_id else "Away",
+            axis=1
+        )
+    else:
+        df["location"] = None
 
     return df
