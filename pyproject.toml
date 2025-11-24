@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nfl-play-by-play"
+version = "0.1.0"
+description = "NFL play-by-play win probability prediction with streaming"
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+# Test discovery patterns
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Where to look for tests
+testpaths = ["src/tests"]
+
+# Markers for categorizing tests
+markers = [
+    "integration: Integration tests that hit external APIs or services (slow)",
+    "slow: Slow-running tests (use -m 'not slow' to skip)",
+    "unit: Fast unit tests with mocked dependencies",
+]
+
+# Output options
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--color=yes",
+]
+
+# Show summary of all test outcomes
+console_output_style = "progress"
+
+# Capture settings (uncomment to enable live logging)
+# log_cli = true
+# log_cli_level = "INFO"
