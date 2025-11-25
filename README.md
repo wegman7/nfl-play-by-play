@@ -101,6 +101,10 @@ Rolling: offense_epa_l50, defense_epa_allowed_l50, pass_rate_l10, qb_comp_l10
 Env: roof/surface, temp, wind
 
 
+## to install airflow
+pip install "apache-airflow[celery]==3.1.2" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.13.txt"
+
+
 
 ### TODO
  - orchestrate everything with something like airflow?
