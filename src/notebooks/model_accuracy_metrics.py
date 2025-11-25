@@ -17,7 +17,7 @@ from src.utils.model_util import load_best_model_from_experiment
 
 # %%
 # Use the same tracking backend as training
-TRACKING_URI = "sqlite:///mlflow.db"
+TRACKING_URI = f"sqlite:///{ROOT}/mlflow.db"
 EXPERIMENT_NAME = "play_by_play_win_prob"
 
 mlflow.set_tracking_uri(TRACKING_URI)

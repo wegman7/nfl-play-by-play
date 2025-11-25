@@ -103,7 +103,6 @@ Env: roof/surface, temp, wind
 
 
 ### TODO
- - find live datasource to test live with
  - orchestrate everything with something like airflow?
  - add a separate model for pregame predictions
     - use a combination of this model + my play by play model for in game predictions
@@ -111,3 +110,9 @@ Env: roof/surface, temp, wind
  - work on making model better: look into more feature engineering, looking at different model architectures, which one makes the most sense and why. also look into xgboost and hyperparameter searching
  
 
+ - need to change model features - only predict for home team and remove home_team and away_team features. 
+ - need to cleanup all notebooks - is it really necessary to have this line "ROOT = Path(__file__).resolve().parents[2]"?
+    - depending on what orchestration tool, we might just want to remove all of that?
+    - need to figure out what format airflow likes
+ - cleanup predict_live_espn - one thing is why are we displaying the full raw df every iteration
+   - is espn cache affected when we see new data?
