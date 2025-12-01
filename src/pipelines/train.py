@@ -13,35 +13,19 @@ from mlflow.models import infer_signature
 import mlflow
 import mlflow.sklearn
 
+from config.settings import settings
+
 
 def run_train():
-    mlflow.set_tracking_uri("sqlite:///mlflow.db")
-    mlflow.set_experiment("play_by_play_win_prob")
+    mlflow.set_tracking_uri(settings.mlflow.tracking_uri)
+    mlflow.set_experiment(settings.mlflow.experiment_name)
 
-    key_cols = ["game_id", "play_id"]
-    numeric_features = [
-        "qtr",
-        "total_home_score",
-        "total_away_score",
-        "score_diff",
-        "down",
-        "ydstogo",
-        "yardline_100",
-        "posteam_timeouts_remaining",
-        "defteam_timeouts_remaining",
-        "time_seconds",
-    ]
-    categorical_features = ["home_team", "posteam", "location"]
-    label_cols = ["win"]
+    features_raw = pd.read_parquet(settings.paths.features_2023)
+    labels_raw = pd.read_parquet(settings.paths.labels_2023)
 
-    FEATURES_PATH = Path("data/features/play_by_play_2023.parquet")
-    LABELS_PATH = Path("data/labels/play_by_play_2023.parquet")
-    features_raw = pd.read_parquet(FEATURES_PATH)
-    labels_raw = pd.read_parquet(LABELS_PATH)
-
-    full_dataset = features_raw.merge(labels_raw, on=key_cols)
-    features = full_dataset[numeric_features + categorical_features]
-    labels = full_dataset[label_cols[0]]
+    full_dataset = features_raw.merge(labels_raw, on=settings.schema.key_cols)
+    features = full_dataset[settings.schema.all_feature_cols]
+    labels = full_dataset[settings.schema.label_cols[0]]
 
     numeric_transformer = "passthrough"
 
@@ -51,16 +35,12 @@ def run_train():
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ("num", numeric_transformer, numeric_features),
-            ("cat", categorical_transformer, categorical_features),
+            ("num", numeric_transformer, settings.schema.numeric_features),
+            ("cat", categorical_transformer, settings.schema.categorical_features),
         ]
     )
 
-    model = RandomForestRegressor(
-        n_estimators=100,
-        random_state=42,
-        n_jobs=-1,
-    )
+    model = RandomForestRegressor(**settings.training.model_config.__dict__)
 
     clf = Pipeline(
         steps=[
@@ -73,7 +53,7 @@ def run_train():
     y = labels
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y, test_size=settings.training.test_size, random_state=settings.training.random_state
     )
 
     with mlflow.start_run() as run:
@@ -83,7 +63,7 @@ def run_train():
             "model_type": "RandomForestRegressor",
             "n_estimators": model.n_estimators,
             "random_state": model.random_state,
-            "test_size": 0.2,
+            "test_size": settings.training.test_size,
         })
 
         clf.fit(X_train, y_train)

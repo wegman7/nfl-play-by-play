@@ -159,3 +159,4 @@ Models are logged with:
 - `.env` file exists but is gitignored (likely contains API keys or config)
 - PySpark streaming uses `.foreachBatch()` to enable pandas/sklearn operations on micro-batches
 - Feature engineering logic must be consistent between training and serving (achieved by importing the same `build_features()` function)
+- An emphasis should be put on simplicity, and avoiding verbosity

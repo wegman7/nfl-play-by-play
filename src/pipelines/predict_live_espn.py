@@ -14,24 +14,7 @@ import argparse
 from src.utils.espn_api_util import espn_game_to_df_with_timeouts
 from src.features.play_by_play import build_features
 from src.utils.model_util import load_best_model_from_experiment
-
-EXPERIMENT_NAME = "play_by_play_win_prob"
-
-FEATURE_COLS = [
-    "qtr",
-    "total_home_score",
-    "total_away_score",
-    "score_diff",
-    "down",
-    "ydstogo",
-    "yardline_100",
-    "posteam_timeouts_remaining",
-    "defteam_timeouts_remaining",
-    "time_seconds",
-    "home_team",
-    "posteam",
-    "location",
-]
+from config.settings import settings
 
 
 def predict_from_espn(
@@ -90,7 +73,7 @@ def predict_from_espn(
                 else:
                     new_plays = features_df
 
-                valid_plays = new_plays.dropna(subset=FEATURE_COLS)
+                valid_plays = new_plays.dropna(subset=settings.schema.all_feature_cols)
                 num_invalid = len(new_plays) - len(valid_plays)
 
                 if num_invalid > 0:
@@ -101,7 +84,7 @@ def predict_from_espn(
                     time.sleep(poll_interval)
                     continue
 
-                X = valid_plays[FEATURE_COLS]
+                X = valid_plays[settings.schema.all_feature_cols]
                 predictions = model.predict(X)
                 valid_plays = valid_plays.copy()
                 valid_plays["win_prob"] = predictions
@@ -144,20 +127,20 @@ def run_predict_live_espn():
     parser.add_argument(
         "--game-id",
         type=str,
-        default="401772820",
-        help="ESPN game ID (default: '401772820')"
+        default=settings.espn.default_game_id,
+        help=f"ESPN game ID (default: '{settings.espn.default_game_id}')"
     )
     parser.add_argument(
         "--interval",
         type=int,
-        default=10,
-        help="Polling interval in seconds (default: 10)"
+        default=settings.espn.poll_interval_seconds,
+        help=f"Polling interval in seconds (default: {settings.espn.poll_interval_seconds})"
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default=None,
-        help="Output directory for predictions (default: data/live/espn/)"
+        help=f"Output directory for predictions (default: {settings.paths.live_espn_dir})"
     )
     parser.add_argument(
         "--max-iterations",
@@ -170,10 +153,10 @@ def run_predict_live_espn():
 
     print("Loading best model from MLflow...")
     model, model_uri, run_id = load_best_model_from_experiment(
-        experiment_name=EXPERIMENT_NAME,
-        tracking_uri="sqlite:///mlflow.db",
-        metric="r2",
-        higher_is_better=True,
+        experiment_name=settings.mlflow.experiment_name,
+        tracking_uri=settings.mlflow.tracking_uri,
+        metric=settings.mlflow.metric,
+        higher_is_better=settings.mlflow.metric_higher_is_better,
     )
     print(f"Loaded model from {model_uri} (run_id={run_id})")
     print()
@@ -181,7 +164,7 @@ def run_predict_live_espn():
     if args.output_dir:
         output_dir = Path(args.output_dir)
     else:
-        output_dir = Path("data/live/espn")
+        output_dir = settings.paths.live_espn_dir
 
     predict_from_espn(
         game_id=args.game_id,

@@ -120,3 +120,60 @@ pip install "apache-airflow[celery]==3.1.2" --constraint "https://raw.githubuser
     - need to figure out what format airflow likes
  - cleanup predict_live_espn - one thing is why are we displaying the full raw df every iteration
    - is espn cache affected when we see new data?
+
+ - it might make sense to switch to a domain centric layout? these keeps the "scope" smaller
+   - then we can create a new "domain" for each type of model, and it will have a very similar structure
+   - the nice thing about this is it keeps the entire pipeline together
+         src/
+            play_by_play/
+               config/
+                  settings.py
+               pipelines/
+                  * all of my pipeline files (including everything in features/ and labels/) *
+               * the rest of my files *
+               notebooks/
+                  * all of my notebooks and streaming notebooks *
+               test/
+               utils/
+
+   could evolve into:
+      src/
+         play_by_play/
+            __init__.py
+
+            config/
+               __init__.py
+               model.py          # FEATURE_COLS, labels, hyperparams
+               paths.py          # data locations, table names, etc.
+
+            features/
+               __init__.py
+               core.py           # low-level feature functions
+               aggregation.py
+               espn_specific.py
+
+            pipelines/
+               __init__.py
+               training.py       # run_train_win_prob_model(...)
+               eval.py           # run_eval_win_prob_model(...)
+               streaming.py      # run_predict_live_espn_stream(...)
+               batch_scoring.py
+
+            schemas/
+               __init__.py
+               datasets.py       # TypedDicts, pydantic models, Spark schemas
+
+            models/
+               __init__.py
+               estimator.py      # wrapper around sklearn/xgboost/lightgbm
+               registry.py
+      with overal structure looking like:
+         src/
+            play_by_play/
+               ...
+            fantasy/
+               ...
+            common/
+               ...
+            monitoring/
+               ...

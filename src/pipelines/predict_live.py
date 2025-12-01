@@ -9,19 +9,16 @@ from pyspark.sql.types import (
 
 import pandas as pd
 
-from pathlib import Path
-
 from src.features.play_by_play import build_features
 from src.utils.model_util import load_best_model_from_experiment
+from config.settings import settings
 
 
 def run_predict_live():
-    STREAM_FEATURES_DIR = Path("data/live/features")
-
     spark = (
         SparkSession.builder
-        .appName("NFLPlayByPlayStreaming")
-        .config("spark.sql.shuffle.partitions", "4")
+        .appName(settings.spark.app_name)
+        .config("spark.sql.shuffle.partitions", str(settings.spark.shuffle_partitions))
         .config(
             "spark.jars.packages",
             "org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.1",
@@ -29,12 +26,13 @@ def run_predict_live():
         .getOrCreate()
     )
 
-    EXPERIMENT_NAME = "play_by_play_win_prob"
+    spark.sparkContext.setLogLevel(settings.spark.log_level)
+
     model, model_uri, RUN_ID = load_best_model_from_experiment(
-        experiment_name=EXPERIMENT_NAME,
-        tracking_uri="sqlite:///mlflow.db",
-        metric="r2",
-        higher_is_better=True,
+        experiment_name=settings.mlflow.experiment_name,
+        tracking_uri=settings.mlflow.tracking_uri,
+        metric=settings.mlflow.metric,
+        higher_is_better=settings.mlflow.metric_higher_is_better,
     )
     print(f"Loaded model from {model_uri} (run_id={RUN_ID})")
 
@@ -55,27 +53,11 @@ def run_predict_live():
         "location",
     ]
 
-    feature_cols = [
-        "qtr",
-        "total_home_score",
-        "total_away_score",
-        "score_diff",
-        "down",
-        "ydstogo",
-        "yardline_100",
-        "posteam_timeouts_remaining",
-        "defteam_timeouts_remaining",
-        "time_seconds",
-        "home_team",
-        "posteam",
-        "location",
-    ]
-
     raw = (
         spark.readStream
              .format("kafka")
-             .option("kafka.bootstrap.servers", "localhost:19092")
-             .option("subscribe", "nfl_plays")
+             .option("kafka.bootstrap.servers", ",".join(settings.kafka.bootstrap_servers))
+             .option("subscribe", settings.kafka.topic_nfl_plays)
              .option("startingOffsets", "earliest")
              .option("failOnDataLoss", "false")
              .load()
@@ -114,7 +96,7 @@ def run_predict_live():
         pdf = batch_df.toPandas()
         features = build_features(pdf)
 
-        good_features = features.dropna(subset=feature_cols)
+        good_features = features.dropna(subset=settings.schema.all_feature_cols)
 
         num_bad = len(features) - len(good_features)
         if num_bad > 0:
@@ -123,7 +105,7 @@ def run_predict_live():
         if good_features.empty:
             return
 
-        X = good_features[feature_cols]
+        X = good_features[settings.schema.all_feature_cols]
         preds = model.predict(X)
         good_features["win_prob"] = preds
 
@@ -132,7 +114,7 @@ def run_predict_live():
             out_spark_df
             .write
             .mode("append")
-            .parquet(str(STREAM_FEATURES_DIR))
+            .parquet(str(settings.paths.live_features_dir))
         )
 
     query = (
@@ -140,7 +122,7 @@ def run_predict_live():
         .writeStream
         .foreachBatch(process_batch)
         .outputMode("append")
-        .option("checkpointLocation", "./chk/nfl_predictions")
+        .option("checkpointLocation", str(settings.paths.nfl_predictions_checkpoint))
         .start()
     )
 

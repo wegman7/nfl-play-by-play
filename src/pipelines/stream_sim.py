@@ -1,8 +1,9 @@
-from pathlib import Path
-
-import time, json
+import time
+import json
 from kafka import KafkaProducer
 import pandas as pd
+
+from config.settings import settings
 
 
 def run_stream_sim():
@@ -23,11 +24,13 @@ def run_stream_sim():
         "location",
     ]
 
-    df = pd.read_parquet("./data/raw/play_by_play_2023.parquet")
+    df = pd.read_parquet(settings.paths.raw_play_by_play_2023)
     df = df.sort_values(["game_id", "play_id"])[cols].dropna()
 
-    producer = KafkaProducer(bootstrap_servers=["localhost:19092"],
-                             value_serializer=lambda v: json.dumps(v).encode("utf-8"))
+    producer = KafkaProducer(
+        bootstrap_servers=settings.kafka.bootstrap_servers,
+        value_serializer=lambda v: json.dumps(v).encode("utf-8")
+    )
 
     for _, row in df.iterrows():
         msg = {
@@ -47,5 +50,5 @@ def run_stream_sim():
             "location": str(row["location"]),
         }
 
-        producer.send("nfl_plays", msg)
-        time.sleep(0.3)
+        producer.send(settings.kafka.topic_nfl_plays, msg)
+        time.sleep(settings.kafka.stream_sim_sleep_seconds)

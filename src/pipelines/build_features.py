@@ -1,13 +1,10 @@
-from pathlib import Path
 import pandas as pd
 
 from src.features.play_by_play import build_features
+from config.settings import settings
 
 
 def run_build_features():
-    RAW_DATA_DIR = Path("data/raw")
-    FEATURES_DIR = Path("data/features")
-
     cols = [
         "game_id",
         "play_id",
@@ -25,8 +22,9 @@ def run_build_features():
         "location",
     ]
 
-    raw = pd.read_parquet(RAW_DATA_DIR / "play_by_play_2023.parquet")
+    raw = pd.read_parquet(settings.paths.raw_play_by_play_2023)
     data = raw[cols].dropna()
 
     features = build_features(data)
-    features.to_parquet(FEATURES_DIR / "play_by_play_2023.parquet")
+    settings.paths.features_dir.mkdir(parents=True, exist_ok=True)
+    features.to_parquet(settings.paths.features_2023)
