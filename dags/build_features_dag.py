@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 
 from play_by_play.pipelines.build_features import run_build_features
 
@@ -18,7 +18,7 @@ with DAG(
     dag_id="build_features_dag",
     default_args=default_args,
     description="Build NFL play-by-play features from raw data",
-    schedule_interval=None,  # Manual trigger only
+    schedule=None,  # Manual trigger only
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["nfl", "features", "preprocessing"],

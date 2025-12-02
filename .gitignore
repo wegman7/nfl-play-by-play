@@ -1,6 +1,17 @@
 chk
 __pycache__/
 
+# Package build artifacts
+*.egg-info/
+dist/
+build/
+
+# Airflow
+airflow.db
+airflow.cfg
+logs/
+airflow-webserver.pid
+
 # MLflow
 mlruns/
 mlartifacts/

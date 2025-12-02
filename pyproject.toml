@@ -8,6 +8,9 @@ version = "0.1.0"
 description = "NFL play-by-play win probability prediction with streaming"
 requires-python = ">=3.9"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.pytest.ini_options]
 # Test discovery patterns
 python_files = ["test_*.py"]
