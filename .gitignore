@@ -11,6 +11,8 @@ airflow.db
 airflow.cfg
 logs/
 airflow-webserver.pid
+docker/airflow/logs/
+docker/airflow/plugins/__pycache__/
 
 # MLflow
 mlruns/
