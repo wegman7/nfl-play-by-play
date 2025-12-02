@@ -3,7 +3,7 @@ import json
 from kafka import KafkaProducer
 import pandas as pd
 
-from config.settings import settings
+from play_by_play.config.settings import settings
 
 
 def run_stream_sim():

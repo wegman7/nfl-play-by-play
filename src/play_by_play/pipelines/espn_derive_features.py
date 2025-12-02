@@ -1,5 +1,5 @@
 import pandas as pd
-from src.utils.espn_api_util import espn_game_to_df_with_timeouts
+from play_by_play.utils.espn_api_util import espn_game_to_df_with_timeouts
 
 
 def run_espn_derive_features():

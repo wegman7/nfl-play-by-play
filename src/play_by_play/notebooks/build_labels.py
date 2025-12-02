@@ -2,12 +2,12 @@
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(ROOT))
 
 import pandas as pd
 
-from src.labels.play_by_play import build_labels
+from play_by_play.ml.labels import build_labels
 
 # %%
 RAW_DATA_DIR = ROOT / "data" / "raw"

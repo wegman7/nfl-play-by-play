@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from src.pipelines.build_features import run_build_features
+from play_by_play.pipelines.build_features import run_build_features
 
 
 default_args = {

@@ -10,10 +10,10 @@ import mlflow.sklearn
 from mlflow.artifacts import download_artifacts
 
 # %%
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(ROOT))
 
-from src.utils.model_util import load_best_model_from_experiment
+from play_by_play.utils.model_util import load_best_model_from_experiment
 
 # %%
 # Use the same tracking backend as training

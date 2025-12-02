@@ -9,7 +9,7 @@ import pytest
 import pandas as pd
 from unittest.mock import Mock, patch
 
-from src.utils.espn_api_util import (
+from play_by_play.utils.espn_api_util import (
     fetch_espn_game,
     get_team_meta,
     get_all_plays,
@@ -230,7 +230,7 @@ def test_add_timeouts_remaining(sample_plays):
     assert enriched[2]["away_timeouts_remaining"] == 3
 
 
-@patch("src.utils.espn_api_util.fetch_espn_game")
+@patch("play_by_play.utils.espn_api_util.fetch_espn_game")
 def test_espn_game_to_df_with_timeouts_mocked(mock_fetch, mock_espn_game_json):
     """Test DataFrame creation with mocked API response."""
     mock_fetch.return_value = mock_espn_game_json

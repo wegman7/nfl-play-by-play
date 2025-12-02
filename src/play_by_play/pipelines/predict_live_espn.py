@@ -11,10 +11,10 @@ from pathlib import Path
 from datetime import datetime
 import argparse
 
-from src.utils.espn_api_util import espn_game_to_df_with_timeouts
-from src.features.play_by_play import build_features
-from src.utils.model_util import load_best_model_from_experiment
-from config.settings import settings
+from play_by_play.utils.espn_api_util import espn_game_to_df_with_timeouts
+from play_by_play.ml.features import build_features
+from play_by_play.utils.model_util import load_best_model_from_experiment
+from play_by_play.config.settings import settings
 
 
 def predict_from_espn(

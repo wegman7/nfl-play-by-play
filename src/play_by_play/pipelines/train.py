@@ -13,7 +13,7 @@ from mlflow.models import infer_signature
 import mlflow
 import mlflow.sklearn
 
-from config.settings import settings
+from play_by_play.config.settings import settings
 
 
 def run_train():

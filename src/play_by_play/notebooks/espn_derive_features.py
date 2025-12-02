@@ -2,11 +2,11 @@
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(ROOT))
 
 import pandas as pd
-from src.utils.espn_api_util import espn_game_to_df_with_timeouts
+from play_by_play.utils.espn_api_util import espn_game_to_df_with_timeouts
 
 # %%
 GAME_ID = "401772945"  # plug in any valid gameId

@@ -12,12 +12,12 @@ import sys
 from datetime import datetime
 import argparse
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(ROOT))
 
-from src.utils.espn_api_util import espn_game_to_df_with_timeouts
-from src.features.play_by_play import build_features
-from src.utils.model_util import load_best_model_from_experiment
+from play_by_play.utils.espn_api_util import espn_game_to_df_with_timeouts
+from play_by_play.ml.features import build_features
+from play_by_play.utils.model_util import load_best_model_from_experiment
 
 EXPERIMENT_NAME = "play_by_play_win_prob"
 

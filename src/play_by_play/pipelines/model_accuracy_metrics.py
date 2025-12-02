@@ -7,7 +7,7 @@ import mlflow
 import mlflow.sklearn
 from mlflow.artifacts import download_artifacts
 
-from src.utils.model_util import load_best_model_from_experiment
+from play_by_play.utils.model_util import load_best_model_from_experiment
 
 
 def run_model_accuracy_metrics():

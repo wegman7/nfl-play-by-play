@@ -2,12 +2,12 @@
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(ROOT))
 
 import pandas as pd
 
-from src.features.play_by_play import build_features
+from play_by_play.ml.features import build_features
 
 # %%
 RAW_DATA_DIR = ROOT / "data" / "raw"

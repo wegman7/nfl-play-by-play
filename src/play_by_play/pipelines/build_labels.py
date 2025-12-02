@@ -1,7 +1,7 @@
 import pandas as pd
 
-from src.labels.play_by_play import build_labels
-from config.settings import settings
+from play_by_play.ml.labels import build_labels
+from play_by_play.config.settings import settings
 
 
 def run_build_labels():

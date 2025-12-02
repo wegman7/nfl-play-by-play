@@ -8,6 +8,9 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List
 
+# Project root directory (3 levels up from this file)
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
 
 @dataclass
 class MLflowConfig:
@@ -157,7 +160,7 @@ class Settings:
     Main settings object containing all configuration.
 
     Usage:
-        from config.settings import settings
+        from play_by_play.config.settings import settings
 
         # Access configuration
         mlflow_uri = settings.mlflow.tracking_uri

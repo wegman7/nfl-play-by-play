@@ -15,7 +15,7 @@ from mlflow.models import infer_signature
 import mlflow
 import mlflow.sklearn
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(ROOT))
 
 # --- MLflow setup (sqlite) ---

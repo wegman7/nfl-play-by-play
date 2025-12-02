@@ -15,7 +15,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 
 # Where to look for tests
-testpaths = ["src/tests"]
+testpaths = ["src/play_by_play/test"]
 
 # Markers for categorizing tests
 markers = [
