@@ -1,6 +1,6 @@
 import pandas as pd
 
-from play_by_play.config.settings import settings
+from src.play_by_play.config.settings import settings
 
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     # your mm:ss → seconds logic, etc.

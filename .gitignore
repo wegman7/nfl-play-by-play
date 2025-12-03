@@ -20,6 +20,6 @@ mlartifacts/
 mlflow.db
 .mlflow/
 
-data/live
+data/
 
 .env
