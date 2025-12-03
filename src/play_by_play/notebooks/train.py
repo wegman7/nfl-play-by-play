@@ -22,6 +22,14 @@ from play_by_play.config.settings import settings
 
 # --- MLflow setup (sqlite) ---
 mlflow.set_tracking_uri(settings.mlflow.tracking_uri)
+
+# Create or get experiment with artifact location at project root
+experiment = mlflow.get_experiment_by_name(settings.mlflow.experiment_name)
+if experiment is None:
+    mlflow.create_experiment(
+        settings.mlflow.experiment_name,
+        artifact_location=settings.mlflow.artifact_location
+    )
 mlflow.set_experiment(settings.mlflow.experiment_name)
 
 # %%

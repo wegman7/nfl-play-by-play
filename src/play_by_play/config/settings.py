@@ -16,7 +16,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 class MLflowConfig:
     """MLflow tracking and experiment configuration."""
 
-    tracking_uri: str = "sqlite:///mlflow.db"
+    tracking_uri: str = field(default_factory=lambda: f"sqlite:///{PROJECT_ROOT / 'mlflow.db'}")
+    artifact_location: str = field(
+        default_factory=lambda: (PROJECT_ROOT / "mlruns").resolve().as_uri()
+    )
     experiment_name: str = "play_by_play_win_prob"
     metric: str = "r2"
     metric_higher_is_better: bool = True
