@@ -18,30 +18,21 @@ import mlflow.sklearn
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(ROOT))
 
+from play_by_play.config.settings import settings
+
 # --- MLflow setup (sqlite) ---
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
-mlflow.set_experiment("play_by_play_win_prob")
+mlflow.set_tracking_uri(settings.mlflow.tracking_uri)
+mlflow.set_experiment(settings.mlflow.experiment_name)
 
 # %%
-key_cols = ["game_id", "play_id"]
-numeric_features = [
-    "qtr",
-    "total_home_score",
-    "total_away_score",
-    "score_diff",
-    "down",
-    "ydstogo",
-    "yardline_100",
-    "posteam_timeouts_remaining",
-    "defteam_timeouts_remaining",
-    "time_seconds",
-]
-categorical_features = ["home_team", "posteam", "location"]
-label_cols = ["win"]
+key_cols = settings.schema.key_cols
+numeric_features = settings.schema.numeric_features
+categorical_features = settings.schema.categorical_features
+label_cols = settings.schema.label_cols
 
 # %%
-FEATURES_PATH = ROOT / "data" / "features" / "play_by_play_2023.parquet"
-LABELS_PATH = ROOT / "data" / "labels" / "play_by_play_2023.parquet"
+FEATURES_PATH = settings.paths.features_2023
+LABELS_PATH = settings.paths.labels_2023
 features_raw = pd.read_parquet(FEATURES_PATH)
 labels_raw = pd.read_parquet(LABELS_PATH)
 
@@ -66,9 +57,9 @@ preprocessor = ColumnTransformer(
 
 # Define the model
 model = RandomForestRegressor(
-    n_estimators=100,
-    random_state=42,
-    n_jobs=-1,
+    n_estimators=settings.training.model_config.n_estimators,
+    random_state=settings.training.model_config.random_state,
+    n_jobs=settings.training.model_config.n_jobs,
 )
 
 # Full pipeline: preprocess -> model
@@ -85,7 +76,9 @@ X = features
 y = labels
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X, y,
+    test_size=settings.training.test_size,
+    random_state=settings.training.random_state
 )
 
 # %%
@@ -96,9 +89,9 @@ with mlflow.start_run() as run:
     # log some basic params
     mlflow.log_params({
         "model_type": "RandomForestRegressor",
-        "n_estimators": model.n_estimators,
-        "random_state": model.random_state,
-        "test_size": 0.2,
+        "n_estimators": settings.training.model_config.n_estimators,
+        "random_state": settings.training.model_config.random_state,
+        "test_size": settings.training.test_size,
     })
 
     # Fit the model
@@ -133,3 +126,5 @@ with mlflow.start_run() as run:
         signature=signature,
         input_example=X_train.head(5),
     )
+
+# %%
