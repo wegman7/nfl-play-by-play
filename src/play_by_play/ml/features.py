@@ -1,5 +1,6 @@
 import pandas as pd
 
+from play_by_play.config.settings import settings
 
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     # your mm:ss → seconds logic, etc.
@@ -18,24 +19,15 @@ def add_score_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def select_final_feature_columns(df: pd.DataFrame) -> pd.DataFrame:
-    key_cols = ["game_id", "play_id"]
+def convert_posteam_to_is_home(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df['posteam_is_home'] = df['posteam'] == df['home_team']
+    return df
 
-    feature_cols = [
-        "qtr",
-        "total_home_score",
-        "total_away_score",
-        "score_diff",
-        "down",
-        "ydstogo",
-        "yardline_100",
-        "posteam_timeouts_remaining",
-        "defteam_timeouts_remaining",
-        "time_seconds",
-        "home_team",
-        "posteam",
-        "location",
-    ]
+
+def select_final_feature_columns(df: pd.DataFrame) -> pd.DataFrame:
+    key_cols = settings.schema.key_cols
+    feature_cols = settings.schema.all_feature_cols
     return df[key_cols + feature_cols]
 
 
@@ -45,5 +37,6 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
         .copy()
         .pipe(add_time_features)
         .pipe(add_score_features)
+        .pipe(convert_posteam_to_is_home)
         .pipe(select_final_feature_columns)
     )

@@ -42,8 +42,7 @@ class ModelSchemaConfig:
     ])
 
     categorical_features: List[str] = field(default_factory=lambda: [
-        "home_team",
-        "posteam",
+        "posteam_is_home",
         "location",
     ])
 
