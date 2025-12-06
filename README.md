@@ -115,4 +115,5 @@ pip install "apache-airflow[celery]==3.1.2" --constraint "https://raw.githubuser
  - cleanup predict_live_espn - one thing is why are we displaying the full raw df every iteration
    - is espn cache affected when we see new data?
 
- - need to change model features - only predict for home team and remove home_team and away_team features!!!
+ - pull the rest of the dataset (more seasons + years) and do data exploration
+ 
