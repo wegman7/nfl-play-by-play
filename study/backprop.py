@@ -1,52 +1,6 @@
 # %%
-from pathlib import Path
-import sys
 import pandas as pd
 import numpy as np
-
-ROOT = Path(__file__).resolve().parents[3]
-sys.path.append(str(ROOT))
-
-from src.play_by_play.ml.features import build_features
-from src.play_by_play.ml.labels import build_labels
-
-# %%
-data_dir = ROOT / "data" / "raw"
-full_df = pd.DataFrame()
-for i in range(1999, 2026):
-    path = data_dir / f"play_by_play_{i}.parquet"
-    df = pd.read_parquet(path)
-    print(f"Year: {i}, Shape: {df.shape}")
-    full_df = pd.concat([full_df, df], axis=0, ignore_index=True)
-
-# %%
-cols = [
-    "game_id",
-    "play_id",
-    "qtr",
-    "time",
-    "total_home_score",
-    "total_away_score",
-    "home_team",
-    "posteam",
-    "down",
-    "ydstogo",
-    "yardline_100",
-    "posteam_timeouts_remaining",
-    "defteam_timeouts_remaining",
-    "location",
-    "result",
-]
-
-data = full_df[cols].dropna()
-
-# %%
-features = build_features(data)
-labels = build_labels(data)
-
-# %%
-full_dataset = features.merge(labels, on=["game_id", "play_id"], how="inner")
-
 
 # %%
 # https://www.geeksforgeeks.org/machine-learning/backpropagation-in-neural-network/
