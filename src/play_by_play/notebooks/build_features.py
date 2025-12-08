@@ -14,26 +14,8 @@ RAW_DATA_DIR = ROOT / "data" / "raw"
 FEATURES_DIR = ROOT / "data" / "features"
 
 # %%
-cols = [
-    "game_id",
-    "play_id",
-    "qtr",
-    "time",
-    "total_home_score",
-    "total_away_score",
-    "home_team",
-    "posteam",
-    "down",
-    "ydstogo",
-    "yardline_100",
-    "posteam_timeouts_remaining",
-    "defteam_timeouts_remaining",
-    "location",
-]
-
 raw = pd.read_parquet(RAW_DATA_DIR / "play_by_play_2023.parquet")
-data = raw[cols].dropna()
 
 # %%
-features = build_features(data)
+features = build_features(raw)
 features.to_parquet(FEATURES_DIR / "play_by_play_2023.parquet")

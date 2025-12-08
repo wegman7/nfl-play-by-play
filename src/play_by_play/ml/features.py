@@ -5,7 +5,6 @@ from src.play_by_play.config.settings import settings
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     # your mm:ss → seconds logic, etc.
     df = df.copy()
-    print(df.head())
     def mmss_to_seconds(t: str) -> int:
         m, s = t.split(":")
         return int(m) * 60 + int(s)
@@ -31,10 +30,15 @@ def select_final_feature_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df[key_cols + feature_cols]
 
 
+def remove_na_rows(df: pd.DataFrame) -> pd.DataFrame:
+    return df[settings.schema.required_input_feature_cols].dropna()
+
+
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     return (
         df
         .copy()
+        .pipe(remove_na_rows)
         .pipe(add_time_features)
         .pipe(add_score_features)
         .pipe(convert_posteam_to_is_home)

@@ -29,6 +29,29 @@ class MLflowConfig:
 class ModelSchemaConfig:
     """Feature and label column definitions."""
 
+    required_input_feature_cols: List[str] = field(default_factory=lambda: [
+        "game_id",
+        "play_id",
+        "qtr",
+        "time",
+        "total_home_score",
+        "total_away_score",
+        "home_team",
+        "posteam",
+        "down",
+        "ydstogo",
+        "yardline_100",
+        "posteam_timeouts_remaining",
+        "defteam_timeouts_remaining",
+        "location",
+    ])
+
+    required_input_label_cols: List[str] = field(default_factory=lambda: [
+        "game_id",
+        "play_id",
+        "result",
+    ])
+
     key_cols: List[str] = field(default_factory=lambda: ["game_id", "play_id"])
 
     numeric_features: List[str] = field(default_factory=lambda: [
