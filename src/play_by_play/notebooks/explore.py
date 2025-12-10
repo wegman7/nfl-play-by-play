@@ -26,9 +26,6 @@ labels = build_labels(full_df)
 clean_df = pd.merge(features, labels, on=["game_id", "play_id"])
 
 # %%
-jax_ten = clean_df[clean_df['game_id'] == '2025_13_JAX_TEN']
-
-# %%
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -114,6 +111,10 @@ def plot_win_prob_over_time(df, score_diff, qtr, n_bins=20):
 # Example call
 plot_win_prob_over_time(clean_df, score_diff=10, qtr=4)
 
+# %%
+num_cols = settings.schema.numeric_features
+corr = clean_df.groupby('qtr')[num_cols + ['win']].corr()
+corr['win']
 
 
 
