@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from src.play_by_play.config.settings import settings
@@ -9,6 +10,18 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
         m, s = t.split(":")
         return int(m) * 60 + int(s)
     df["time_seconds"] = df["time"].astype(str).apply(mmss_to_seconds)
+    return df
+
+
+def add_seconds_total_feature(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    # handle overtime
+    remaining_quarters = np.maximum(4 - df["qtr"], 0)
+    df["time_seconds_total"] = (
+        remaining_quarters * 15 * 60 +  # full quarters
+        df["time_seconds"]            # seconds in current quarter
+    )
     return df
 
 
@@ -40,6 +53,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
         .copy()
         .pipe(remove_na_rows)
         .pipe(add_time_features)
+        .pipe(add_seconds_total_feature)
         .pipe(add_score_features)
         .pipe(convert_posteam_to_is_home)
         .pipe(select_final_feature_columns)
