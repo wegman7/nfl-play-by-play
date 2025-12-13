@@ -65,6 +65,7 @@ class ModelSchemaConfig:
         "posteam_timeouts_remaining",
         "defteam_timeouts_remaining",
         "time_seconds",
+        "time_seconds_total",
     ])
 
     categorical_features: List[str] = field(default_factory=lambda: [
