@@ -8,7 +8,8 @@ import os
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from sklearn.metrics import log_loss, roc_auc_score, accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score, accuracy_score
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -48,14 +49,12 @@ X = clean_df[settings.schema.numeric_features + settings.schema.categorical_feat
 y = clean_df[settings.schema.label_cols[0]]
 keys = clean_df[settings.schema.key_cols]
 
-# Manual split: 80/20
-split_idx = int(len(clean_df) * 0.8)
-X_train = X.iloc[:split_idx]
-X_test = X.iloc[split_idx:]
-y_train = y.iloc[:split_idx]
-y_test = y.iloc[split_idx:]
-keys_train = keys.iloc[:split_idx]
-keys_test = keys.iloc[split_idx:]
+# Train/test split
+X_train, X_test, y_train, y_test, keys_train, keys_test = train_test_split(
+    X, y, keys,
+    test_size=0.2,
+    random_state=42
+)
 
 # %%
 print("Fitting preprocessor...")
@@ -102,9 +101,21 @@ history = model.fit(
 # %%
 predictions = model.predict(X_test_p).ravel()
 
-print("Log Loss:", log_loss(y_test, predictions))
-print("AUC:", roc_auc_score(y_test, predictions))
-print("Accuracy:", accuracy_score(y_test, (predictions >= 0.5).astype(int)))
+y_test_array = y_test.to_numpy()
+# Calculate binary cross-entropy manually (same as log_loss for binary classification)
+bce = -np.mean(y_test_array * np.log(predictions + 1e-15) + (1 - y_test_array) * np.log(1 - predictions + 1e-15))
+print("Binary Cross-Entropy:", bce)
+
+# For AUC, filter out ties (0.5 values) to get a true binary classification metric
+non_tie_mask = (y_test_array != 0.5)
+if non_tie_mask.sum() > 0:
+    print("AUC (excluding ties):", roc_auc_score(y_test_array[non_tie_mask], predictions[non_tie_mask]))
+else:
+    print("AUC: N/A (all ties)")
+
+# For accuracy, convert y_test to binary (>= 0.5 is 1, < 0.5 is 0)
+y_test_binary = (y_test_array >= 0.5).astype(int)
+print("Accuracy:", accuracy_score(y_test_binary, (predictions >= 0.5).astype(int)))
 
 # %%
 analyze = (
