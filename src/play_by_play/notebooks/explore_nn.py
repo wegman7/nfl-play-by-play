@@ -25,7 +25,7 @@ print("GPU available:", len(tf.config.list_physical_devices('GPU')) > 0)
 # %%
 data_dir = ROOT / "data" / "raw"
 full_df = pd.DataFrame()
-for i in range(2025, 2026):
+for i in range(1999, 2026):
     path = data_dir / f"play_by_play_{i}.parquet"
     df = pd.read_parquet(path)
     print(f"Year: {i}, Shape: {df.shape}")
@@ -93,8 +93,8 @@ model.compile(
 history = model.fit(
     X_train_p, y_train.to_numpy(),
     validation_split=0.2,
-    epochs=10,
-    batch_size=4096,
+    epochs=30,
+    batch_size=512,
     verbose=1,
 )
 
