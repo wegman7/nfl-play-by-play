@@ -2,17 +2,22 @@ import numpy as np
 import pandas as pd
 
 from src.play_by_play.config.settings import settings
+from src.play_by_play.ml.util import add_posteam_is_home
 
 
 def add_win_labels(df: pd.DataFrame) -> pd.DataFrame:
     # convert result (score) to win outcome
     df = df.copy()
-    df["win"] = np.select(
-        [df["result"] > 0,
-        df["result"] == 0,
-        df["result"] < 0],
+
+    df['win'] = np.select(
+        [
+            (df['result'] > 0) & df['posteam_is_home'],
+            (df['result'] == 0),
+            (df['result'] < 0) & ~df['posteam_is_home'],
+        ],
         [1, 0.5, 0]
     )
+
     return df
 
 
@@ -31,6 +36,7 @@ def build_labels(df: pd.DataFrame) -> pd.DataFrame:
         df
         .copy()
         .pipe(remove_na_rows)
+        .pipe(add_posteam_is_home)
         .pipe(add_win_labels)
         .pipe(select_final_label_columns)
     )

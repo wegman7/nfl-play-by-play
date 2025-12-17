@@ -14,6 +14,7 @@ sys.path.append(str(ROOT))
 
 from src.play_by_play.ml.features import build_features
 from src.play_by_play.ml.labels import build_labels
+from src.play_by_play.ml.util import convert_posteam_to_home_pred
 from src.play_by_play.config.settings import settings
 
 # %%
@@ -88,6 +89,7 @@ print(f"MSE on test set: {mse:.3f}")
 # %%
 analyze = X_test.copy()
 analyze['prediction'] = y_pred
+analyze['prediction_home'] = convert_posteam_to_home_pred(analyze)
 analyze['actual'] = y_test
 analyze = analyze.join(keys_test)
 analyze['correct'] = np.select(
@@ -121,7 +123,7 @@ ten_games
 # %%
 game = analyze[analyze['game_id'] == '2025_05_TEN_ARI'].sort_values('time_seconds_total', ascending=False)
 
-plt.plot(game['time_seconds_total'], game['prediction'], label='Prediction')
+plt.plot(game['time_seconds_total'], game['prediction_home'], label='Prediction')
 plt.gca().invert_xaxis()
 plt.show()
 

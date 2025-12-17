@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from src.play_by_play.config.settings import settings
+from src.play_by_play.ml.util import add_posteam_is_home
 
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     # your mm:ss → seconds logic, etc.
@@ -25,13 +26,28 @@ def add_seconds_total_feature(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_score_features(df: pd.DataFrame) -> pd.DataFrame:
+def add_posteam_centric_scores(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-    df["score_diff"] = df["total_home_score"] - df["total_away_score"]
+    df['posteam_score'] = np.where(
+        df['posteam_is_home'],
+        df['total_home_score'],
+        df['total_away_score']
+    )
+    df['defteam_score'] = np.where(
+        df['posteam_is_home'],
+        df['total_away_score'],
+        df['total_home_score']
+    )
     return df
 
 
-def convert_posteam_to_is_home(df: pd.DataFrame) -> pd.DataFrame:
+def add_score_diff(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df["score_diff"] = df["posteam_score"] - df["defteam_score"]
+    return df
+
+
+def add_posteam_is_home(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df['posteam_is_home'] = df['posteam'] == df['home_team']
     return df
@@ -52,9 +68,11 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
         df
         .copy()
         .pipe(remove_na_rows)
+        .pipe(add_posteam_is_home)
         .pipe(add_time_features)
         .pipe(add_seconds_total_feature)
-        .pipe(add_score_features)
-        .pipe(convert_posteam_to_is_home)
+        .pipe(add_posteam_is_home)
+        .pipe(add_posteam_centric_scores)
+        .pipe(add_score_diff)
         .pipe(select_final_feature_columns)
     )

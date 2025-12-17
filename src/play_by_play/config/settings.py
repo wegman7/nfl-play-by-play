@@ -49,6 +49,8 @@ class ModelSchemaConfig:
     required_input_label_cols: List[str] = field(default_factory=lambda: [
         "game_id",
         "play_id",
+        "posteam",
+        "home_team",
         "result",
     ])
 
@@ -56,8 +58,8 @@ class ModelSchemaConfig:
 
     numeric_features: List[str] = field(default_factory=lambda: [
         "qtr",
-        "total_home_score",
-        "total_away_score",
+        "posteam_score",
+        "defteam_score",
         "score_diff",
         "down",
         "ydstogo",
