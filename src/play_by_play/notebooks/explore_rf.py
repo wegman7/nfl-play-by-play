@@ -113,12 +113,6 @@ plt.show()
 
 # %%
 ten_games = analyze[analyze['game_id'].str.contains('TEN')]['game_id'].drop_duplicates().sort_values()
-ten_games
-# game = (
-#     ten_games
-#     .groupby('game_id')['game_id'].count()
-# )
-# game
 
 # %%
 game = analyze[analyze['game_id'] == '2025_05_TEN_ARI'].sort_values('time_seconds_total', ascending=False)

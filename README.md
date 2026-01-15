@@ -115,5 +115,5 @@ pip install "apache-airflow[celery]==3.1.2" --constraint "https://raw.githubuser
  - cleanup predict_live_espn - one thing is why are we displaying the full raw df every iteration
    - is espn cache affected when we see new data?
 
- - we need to change the features so everything is posteam centric
+ - why are predictions so off? why is my model predicting home team with less than .5 at the beginning of the game, when they have possession?
  
