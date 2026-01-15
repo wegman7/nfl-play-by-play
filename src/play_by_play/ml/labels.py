@@ -15,7 +15,8 @@ def add_win_labels(df: pd.DataFrame) -> pd.DataFrame:
             (df['result'] == 0),
             (df['result'] < 0) & ~df['posteam_is_home'],
         ],
-        [1, 0.5, 0]
+        [1, 0.5, 1],
+        default=0,
     )
 
     return df
