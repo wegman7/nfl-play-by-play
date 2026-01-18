@@ -163,69 +163,69 @@ plt.show()
 # --- SHAP (fast-ish) ---
 # pip install shap
 
-import shap
+# import shap
 
-# Pull fitted pieces out of the pipeline
-pre = clf.named_steps["preprocessor"]
-rf = clf.named_steps["model"]
+# # Pull fitted pieces out of the pipeline
+# pre = clf.named_steps["preprocessor"]
+# rf = clf.named_steps["model"]
 
-# Feature names after preprocessing (works on sklearn >= 1.0+)
-try:
-    feature_names = pre.get_feature_names_out()
-except Exception as e:
-    raise RuntimeError(
-        "pre.get_feature_names_out() failed. "
-        "Upgrade scikit-learn or share the error and I'll give a robust fallback."
-    ) from e
+# # Feature names after preprocessing (works on sklearn >= 1.0+)
+# try:
+#     feature_names = pre.get_feature_names_out()
+# except Exception as e:
+#     raise RuntimeError(
+#         "pre.get_feature_names_out() failed. "
+#         "Upgrade scikit-learn or share the error and I'll give a robust fallback."
+#     ) from e
 
-# Use a SMALL sample so this doesn't take forever
-N_SHAP = 200  # bump to 500 later if you want; start small
-rng = np.random.RandomState(42)
-idx = rng.choice(X_test.shape[0], size=min(N_SHAP, X_test.shape[0]), replace=False)
+# # Use a SMALL sample so this doesn't take forever
+# N_SHAP = 200  # bump to 500 later if you want; start small
+# rng = np.random.RandomState(42)
+# idx = rng.choice(X_test.shape[0], size=min(N_SHAP, X_test.shape[0]), replace=False)
 
-X_shap = X_test.iloc[idx]
-X_shap_t = pre.transform(X_shap)
+# X_shap = X_test.iloc[idx]
+# X_shap_t = pre.transform(X_shap)
 
-# TreeExplainer is the fast one for RandomForest
-explainer = shap.TreeExplainer(
-    rf,
-    feature_perturbation="tree_path_dependent",
-)
+# # TreeExplainer is the fast one for RandomForest
+# explainer = shap.TreeExplainer(
+#     rf,
+#     feature_perturbation="tree_path_dependent",
+# )
 
-shap_values = explainer.shap_values(X_shap_t)  # (n_samples, n_features) for regressor
+# shap_values = explainer.shap_values(X_shap_t)  # (n_samples, n_features) for regressor
 
-# Quick numeric importance (fast, no plots)
-mean_abs_shap = np.abs(shap_values).mean(axis=0)
-imp = (
-    pd.DataFrame({"feature": feature_names, "mean_abs_shap": mean_abs_shap})
-    .sort_values("mean_abs_shap", ascending=False)
-)
-print("\nTop SHAP features (mean |SHAP|):")
-print(imp.head(20).to_string(index=False))
+# # Quick numeric importance (fast, no plots)
+# mean_abs_shap = np.abs(shap_values).mean(axis=0)
+# imp = (
+#     pd.DataFrame({"feature": feature_names, "mean_abs_shap": mean_abs_shap})
+#     .sort_values("mean_abs_shap", ascending=False)
+# )
+# print("\nTop SHAP features (mean |SHAP|):")
+# print(imp.head(20).to_string(index=False))
 
-# Optional: one plot (can be slower; comment out if you want)
-# shap.summary_plot(shap_values, X_shap_t, feature_names=feature_names, plot_type="bar", show=True)
+# # Optional: one plot (can be slower; comment out if you want)
+# # shap.summary_plot(shap_values, X_shap_t, feature_names=feature_names, plot_type="bar", show=True)
 
-# --- Local explanation for a specific play (should be quick) ---
-target_game_id = "2025_05_TEN_ARI"
-target_play_id = 1504.0
+# # --- Local explanation for a specific play (should be quick) ---
+# target_game_id = "2025_05_TEN_ARI"
+# target_play_id = 1504.0
 
-row = analyze[(analyze["game_id"] == target_game_id) & (analyze["play_id"] == target_play_id)]
-if len(row) == 1:
-    x1 = row[settings.schema.numeric_features + settings.schema.categorical_features]
-    x1_t = pre.transform(x1)
+# row = analyze[(analyze["game_id"] == target_game_id) & (analyze["play_id"] == target_play_id)]
+# if len(row) == 1:
+#     x1 = row[settings.schema.numeric_features + settings.schema.categorical_features]
+#     x1_t = pre.transform(x1)
 
-    sv1 = explainer.shap_values(x1_t)[0]
-    base = float(explainer.expected_value)
-    pred = float(rf.predict(x1_t)[0])
+#     sv1 = explainer.shap_values(x1_t)[0]
+#     base = float(explainer.expected_value)
+#     pred = float(rf.predict(x1_t)[0])
 
-    print(f"\nLocal SHAP for {target_game_id} play_id={target_play_id}")
-    print(f"base={base:.6f}  pred={pred:.6f}  base+sum(shap)={base + float(sv1.sum()):.6f}")
+#     print(f"\nLocal SHAP for {target_game_id} play_id={target_play_id}")
+#     print(f"base={base:.6f}  pred={pred:.6f}  base+sum(shap)={base + float(sv1.sum()):.6f}")
 
-    top_k = 20
-    order = np.argsort(np.abs(sv1))[::-1][:top_k]
-    print("\nTop contributors:")
-    for j in order:
-        print(f"{feature_names[j]:45s}  shap={sv1[j]: .6f}")
-else:
-    print(f"\nCouldn't find exactly one row for game_id={target_game_id}, play_id={target_play_id}. Found {len(row)} rows.")
+#     top_k = 20
+#     order = np.argsort(np.abs(sv1))[::-1][:top_k]
+#     print("\nTop contributors:")
+#     for j in order:
+#         print(f"{feature_names[j]:45s}  shap={sv1[j]: .6f}")
+# else:
+#     print(f"\nCouldn't find exactly one row for game_id={target_game_id}, play_id={target_play_id}. Found {len(row)} rows.")
