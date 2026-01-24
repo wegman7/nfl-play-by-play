@@ -44,6 +44,8 @@ class ModelSchemaConfig:
         "posteam_timeouts_remaining",
         "defteam_timeouts_remaining",
         "location",
+        "spread_line",
+        "total_line",
     ])
 
     required_input_label_cols: List[str] = field(default_factory=lambda: [
@@ -68,6 +70,8 @@ class ModelSchemaConfig:
         "defteam_timeouts_remaining",
         "time_seconds",
         "time_seconds_total",
+        "posteam_spread_line",
+        "total_line",
     ])
 
     categorical_features: List[str] = field(default_factory=lambda: [

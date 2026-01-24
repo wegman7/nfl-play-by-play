@@ -53,6 +53,16 @@ def add_posteam_is_home(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def add_posteam_spread_line(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df['posteam_spread_line'] = np.where(
+        df['posteam_is_home'],
+        df['spread_line'],
+        -df['spread_line']
+    )
+    return df
+
+
 def select_final_feature_columns(df: pd.DataFrame) -> pd.DataFrame:
     key_cols = settings.schema.key_cols
     feature_cols = settings.schema.all_feature_cols
@@ -74,5 +84,6 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
         .pipe(add_posteam_is_home)
         .pipe(add_posteam_centric_scores)
         .pipe(add_score_diff)
+        .pipe(add_posteam_spread_line)
         .pipe(select_final_feature_columns)
     )

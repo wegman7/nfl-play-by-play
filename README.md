@@ -112,8 +112,9 @@ pip install "apache-airflow[celery]==3.1.2" --constraint "https://raw.githubuser
  - look into best practices for model staging/promotion
  - work on making model better: look into more feature engineering, looking at different model architectures, which one makes the most sense and why. also look into xgboost and hyperparameter searching
  
- - cleanup predict_live_espn - one thing is why are we displaying the full raw df every iteration
-   - is espn cache affected when we see new data?
+ - incorporate pregame betting lines and totals in model to improve accuracy
+ - start research on correlation between betting lines and results
+  - eg does always betting dogs/favorites/home/away perform better?
+  - how accurate are betting lines in general?
 
- - why are predictions so off? why is my model predicting home team with less than .5 at the beginning of the game, when they have possession?
- 
+ - FIX BUG: TOTAL_HOME_SCORE AND TOTAL_AWAY_SCORE ARE SCORES AT THE ENDDDD OF THE PLAY, USE POSTEAM_SCORE AND DEFTEAM_SCORE INSTEAD (AND WE WON'T HAVE TO DO THE HOME->POST TRANSFORMATION)
