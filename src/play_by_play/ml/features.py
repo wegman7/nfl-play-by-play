@@ -26,21 +26,6 @@ def add_seconds_total_feature(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_posteam_centric_scores(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df['posteam_score'] = np.where(
-        df['posteam_is_home'],
-        df['total_home_score'],
-        df['total_away_score']
-    )
-    df['defteam_score'] = np.where(
-        df['posteam_is_home'],
-        df['total_away_score'],
-        df['total_home_score']
-    )
-    return df
-
-
 def add_score_diff(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["score_diff"] = df["posteam_score"] - df["defteam_score"]
@@ -81,8 +66,6 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
         .pipe(add_posteam_is_home)
         .pipe(add_time_features)
         .pipe(add_seconds_total_feature)
-        .pipe(add_posteam_is_home)
-        .pipe(add_posteam_centric_scores)
         .pipe(add_score_diff)
         .pipe(add_posteam_spread_line)
         .pipe(select_final_feature_columns)

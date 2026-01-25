@@ -117,4 +117,5 @@ pip install "apache-airflow[celery]==3.1.2" --constraint "https://raw.githubuser
   - eg does always betting dogs/favorites/home/away perform better?
   - how accurate are betting lines in general?
 
- - FIX BUG: TOTAL_HOME_SCORE AND TOTAL_AWAY_SCORE ARE SCORES AT THE ENDDDD OF THE PLAY, USE POSTEAM_SCORE AND DEFTEAM_SCORE INSTEAD (AND WE WON'T HAVE TO DO THE HOME->POST TRANSFORMATION)
+ - investigate: is our random forest model overfitting? very high r2 value but predictions don't make sense
+ 
